@@ -1,0 +1,149 @@
+.painel-topo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: 72px;
+  padding: 0 28px;
+  background: #fff;
+}
+
+.painel-icone {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #000;
+  cursor: pointer;
+}
+
+.painel-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 340px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #000;
+  border-radius: 20px;
+  background: #f8fafc;
+}
+
+.painel-busca input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.painel-usuario {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.painel-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  color: #fff;
+  font-weight: 700;
+}
+
+img.painel-avatar {
+  object-fit: cover;
+}
+
+/* Menu lateral */
+.painel-fundo {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.painel-menu {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 328px;
+  max-width: 85vw;
+  box-sizing: border-box;
+  padding: 12px 28px;
+  background: #0f1a2e;
+  border-radius: 0 24px 24px 0;
+  transform: translateX(-100%);
+  transition: transform 0.25s;
+}
+
+.painel-menu.aberto {
+  transform: translateX(0);
+}
+
+.menu-topo {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 36px -8px;
+}
+
+.menu-topo img {
+  width: 62px;
+  height: 62px;
+  border-radius: 16px;
+}
+
+.menu-nome {
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.menu-nome span {
+  color: #2f4fb3;
+}
+
+.menu-fechar {
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.painel-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menu-secao {
+  margin: 36px 0 20px;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+@media (max-width: 650px) {
+  .painel-busca {
+    display: none;
+  }
+}

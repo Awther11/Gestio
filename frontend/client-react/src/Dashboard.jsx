@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Box } from "lucide-react";
+import { listarTodosProdutos } from "./produtos";
 import Barra from "./Barra";
 import "./css/Dashboard.css";
 
-const API = "http://localhost:8000";
 
 function numero(valor) {
   const n = Number(valor);
@@ -49,15 +49,17 @@ function Dashboard({ irPara }) {
 
     async function carregar() {
       try {
-        const resposta = await fetch(`${API}/painel`);
-        if (!resposta.ok) throw new Error();
-        const json = await resposta.json();
-        if (ativo) setDados(json || {});
+        const lista = await listarTodosProdutos();
+        const total = lista.reduce(
+          (soma, p) => soma + (Number(p.quantidade_estoque) || 0),
+          0
+        );
+        if (ativo) setDados({ cards: { total_estoque: { valor: total } } });
       } catch {
         if (ativo) setDados({});
       }
     }
-
+    
     carregar();
     return () => {
       ativo = false;

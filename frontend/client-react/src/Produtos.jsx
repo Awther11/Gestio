@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { PackagePlus } from "lucide-react";
 import Barra from "./Barra";
+import { api } from "./api";
+import { listarTodosProdutos, resumoEstoque } from "./produtos";
 import "./css/Produtos.css";
 
-const API = "http://localhost:8000";
-
-const formVazio = { nome: "", categoria: "", preco: "", quantidade: "" };
+const formVazio = {
+  nome: "",
+  preco_custo: "",
+  preco_venda: "",
+  quantidade_estoque: "",
+  estoque_minimo: "",
+};
 
 function numero(valor) {
   const n = Number(valor);
@@ -33,10 +39,8 @@ function Produtos({ irPara }) {
 
     async function carregar() {
       try {
-        const resposta = await fetch(`${API}/estoque`);
-        if (!resposta.ok) throw new Error();
-        const json = await resposta.json();
-        if (ativo) setResumo(json || {});
+        const lista = await listarTodosProdutos();
+        if (ativo) setResumo(resumoEstoque(lista));
       } catch {
         if (ativo) setResumo({});
       }
@@ -68,23 +72,25 @@ function Produtos({ irPara }) {
     setEnviando(true);
 
     try {
-      const resposta = await fetch(`${API}/produtos`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      await api("/products", {
+        metodo: "POST",
+        corpo: {
           nome: form.nome.trim(),
-          categoria: form.categoria.trim(),
-          preco: Number(form.preco),
-          quantidade: Number(form.quantidade),
-        }),
+          preco_custo: Number(form.preco_custo),
+          preco_venda: Number(form.preco_venda),
+          quantidade_estoque: Number(form.quantidade_estoque || 0),
+          estoque_minimo: Number(form.estoque_minimo || 0),
+        },
       });
-
-      if (!resposta.ok) throw new Error();
 
       setModalAberto(false);
       setVersao((v) => v + 1);
-    } catch {
-      setErro("Não foi possível salvar o produto.");
+    } catch (err) {
+      setErro(
+        err.status
+          ? err.message || "Não foi possível salvar o produto."
+          : "Não foi possível conectar ao servidor."
+      );
     } finally {
       setEnviando(false);
     }
@@ -146,42 +152,61 @@ function Produtos({ irPara }) {
 
             <div className="prod-linha">
               <div>
-                <label htmlFor="categoria">Categoria</label>
+                <label htmlFor="preco_custo">Preço de Custo</label>
                 <input
-                  id="categoria"
-                  name="categoria"
-                  type="text"
-                  value={form.categoria}
+                  id="preco_custo"
+                  name="preco_custo"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.preco_custo}
                   onChange={alterar}
+                  required
                 />
               </div>
 
               <div>
-                <label htmlFor="preco">Preço</label>
+                <label htmlFor="preco_venda">Preço de Venda</label>
                 <input
-                  id="preco"
-                  name="preco"
+                  id="preco_venda"
+                  name="preco_venda"
                   type="number"
-                  min="0"
+                  min="0.01"
                   step="0.01"
-                  value={form.preco}
+                  value={form.preco_venda}
                   onChange={alterar}
                   required
                 />
               </div>
             </div>
 
-            <label htmlFor="quantidade">Quantidade de Estoque</label>
-            <input
-              id="quantidade"
-              name="quantidade"
-              type="number"
-              min="0"
-              step="1"
-              value={form.quantidade}
-              onChange={alterar}
-              required
-            />
+            <div className="prod-linha">
+              <div>
+                <label htmlFor="quantidade_estoque">Quantidade de Estoque</label>
+                <input
+                  id="quantidade_estoque"
+                  name="quantidade_estoque"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.quantidade_estoque}
+                  onChange={alterar}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="estoque_minimo">Estoque Mínimo</label>
+                <input
+                  id="estoque_minimo"
+                  name="estoque_minimo"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.estoque_minimo}
+                  onChange={alterar}
+                />
+              </div>
+            </div>
 
             {erro && <p className="prod-erro">{erro}</p>}
 

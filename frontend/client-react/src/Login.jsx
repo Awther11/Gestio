@@ -1,29 +1,36 @@
 import { useState } from "react";
 import logo from "./img/Logo_Gestio.png";
 import "./css/Cadastro.css";
+import { api, salvarToken } from "./api";
 
 function Login({ irParaCadastro, aoEntrar }) {
-  const [usuario, setUsuario] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [lembrar, setLembrar] = useState(false);
   const [erro, setErro] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   async function enviar(e) {
     e.preventDefault();
     setErro("");
+    setEnviando(true);
 
     try {
-      const resposta = await fetch("http://localhost:8000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuario, senha, lembrar }),
+      const { token } = await api("/auth/login", {
+        metodo: "POST",
+        corpo: { email: email.trim(), senha },
       });
 
-      if (!resposta.ok) throw new Error();
-
+      salvarToken(token, lembrar);
       aoEntrar();
-    } catch {
-      setErro("Usuário ou senha inválidos.");
+    } catch (err) {
+      setErro(
+        err.status
+          ? err.message || "Não foi possível entrar."
+          : "Não foi possível conectar ao servidor."
+      );
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -39,12 +46,13 @@ function Login({ irParaCadastro, aoEntrar }) {
         <h2>Acessar Conta</h2>
         <p className="cadastro-sub">Insira suas credenciais para continuar</p>
 
-        <label htmlFor="usuario">Usuário</label>
+        <label htmlFor="email">Email</label>
         <input
-          id="usuario"
-          type="text"
-          value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
+          id="email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
 
@@ -52,6 +60,7 @@ function Login({ irParaCadastro, aoEntrar }) {
         <input
           id="senha"
           type="password"
+          autoComplete="current-password"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
           required
@@ -68,7 +77,9 @@ function Login({ irParaCadastro, aoEntrar }) {
 
         {erro && <p className="cadastro-erro">{erro}</p>}
 
-        <button type="submit">Entrar</button>
+        <button type="submit" disabled={enviando}>
+          {enviando ? "Entrando..." : "Entrar"}
+        </button>
 
         <p className="cadastro-rodape">
           Não possui conta?{" "}

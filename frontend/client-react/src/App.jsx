@@ -3,11 +3,13 @@ import Login from "./Login";
 import Cadastro from "./Cadastro";
 import Dashboard from "./Dashboard";
 import Vendas from "./Vendas";
-import Produtos from "./Produtos";
+// import Produtos from "./Produtos";
 import Clientes from "./Clientes";
+import Produtos from "./Produtos.jsx";
+import { listarTodosProdutos, resumoEstoque } from "./produtos";
 
 function App() {
-  const [tela, setTela] = useState("dashboard");  // caso queira testar uma tela diferente, basta alterar o valor para o nome da tela desejada (por padrão, está login)
+  const [tela, setTela] = useState("login");  // caso queira testar uma tela diferente, basta alterar o valor para o nome da tela desejada (por padrão, está login)
 
   if (tela === "dashboard") {
     return <Dashboard irPara={setTela} />;

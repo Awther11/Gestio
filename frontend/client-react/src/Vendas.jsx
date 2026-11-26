@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Search, ShoppingBag, Minus, Plus } from "lucide-react";
+import { api } from "./api";
 import Barra from "./Barra";
 import "./css/Vendas.css";
 
-const API = "http://localhost:8000";
 
 const formas = [
   { valor: "dinheiro", texto: "Dinheiro" },
@@ -34,11 +34,10 @@ function NovaVenda({ irPara }) {
 
     const espera = setTimeout(async () => {
       try {
-        const resposta = await fetch(
-          `${API}/produtos?busca=${encodeURIComponent(texto)}`
+        const resposta = await api(
+          `/products?busca=${encodeURIComponent(texto)}&limit=8`
         );
-        if (!resposta.ok) throw new Error();
-        const lista = await resposta.json();
+        const lista = resposta?.data;
         if (ativo) setEncontrados(Array.isArray(lista) ? lista : []);
       } catch {
         if (ativo) setEncontrados([]);
@@ -70,7 +69,7 @@ function NovaVenda({ irPara }) {
         {
           id: produto.id,
           nome: produto.nome,
-          preco: Number(produto.preco) || 0,
+          preco: Number(produto.preco_venda) || 0,
           quantidade: 1,
         },
       ];
@@ -91,25 +90,27 @@ function NovaVenda({ irPara }) {
     setEnviando(true);
 
     try {
-      const resposta = await fetch(`${API}/vendas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      await api("/vendas", {
+        metodo: "POST",
+        corpo: {
           itens: carrinho.map((i) => ({
             produto_id: i.id,
             quantidade: i.quantidade,
           })),
           pagamento,
-        }),
+        },
       });
-
-      if (!resposta.ok) throw new Error();
 
       setCarrinho([]);
       setPagamento("");
       setAviso({ texto: "Venda finalizada.", erro: false });
-    } catch {
-      setAviso({ texto: "Não foi possível finalizar a venda.", erro: true });
+    } catch (err) {
+      setAviso({
+        texto: err.status
+          ? "Não foi possível finalizar a venda."
+          : "Não foi possível conectar ao servidor.",
+        erro: true,
+      });
     } finally {
       setEnviando(false);
     }
@@ -139,7 +140,7 @@ function NovaVenda({ irPara }) {
                 <li key={p.id}>
                   <button type="button" onClick={() => adicionar(p)}>
                     <span>{p.nome}</span>
-                    <span>{moeda(p.preco)}</span>
+                    <span>{moeda(p.preco_venda)}</span>
                   </button>
                 </li>
               ))}

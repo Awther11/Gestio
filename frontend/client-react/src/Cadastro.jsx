@@ -1,12 +1,15 @@
 import { useState } from "react";
 import logo from "./img/Logo_Gestio.png";
 import "./css/Cadastro.css";
+import { api } from "./api";
 
 function Cadastro({ irParaLogin }) {
-  const [usuario, setUsuario] = useState("");
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmar, setConfirmar] = useState("");
   const [erro, setErro] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   async function enviar(e) {
     e.preventDefault();
@@ -17,19 +20,23 @@ function Cadastro({ irParaLogin }) {
     }
 
     setErro("");
+    setEnviando(true);
 
     try {
-      const resposta = await fetch("http://localhost:8000/cadastro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuario, senha }),
+      await api("/auth/register", {
+        metodo: "POST",
+        corpo: { nome: nome.trim(), email: email.trim(), senha },
       });
 
-      if (!resposta.ok) throw new Error();
-
       irParaLogin();
-    } catch {
-      setErro("Não foi possível criar a conta.");
+    } catch (err) {
+      setErro(
+        err.status
+          ? err.message || "Não foi possível criar a conta."
+          : "Não foi possível conectar ao servidor."
+      );
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -45,12 +52,25 @@ function Cadastro({ irParaLogin }) {
         <h2>Criar Conta</h2>
         <p className="cadastro-sub">Realize um cadastro simples</p>
 
-        <label htmlFor="usuario">Usuário</label>
+        <label htmlFor="nome">Nome</label>
         <input
-          id="usuario"
+          id="nome"
           type="text"
-          value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
+          autoComplete="name"
+          minLength={2}
+          maxLength={100}
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          required
+        />
+
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
 
@@ -58,6 +78,7 @@ function Cadastro({ irParaLogin }) {
         <input
           id="senha"
           type="password"
+          autoComplete="new-password"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
           required
@@ -67,6 +88,7 @@ function Cadastro({ irParaLogin }) {
         <input
           id="confirmar"
           type="password"
+          autoComplete="new-password"
           value={confirmar}
           onChange={(e) => setConfirmar(e.target.value)}
           required
@@ -74,7 +96,9 @@ function Cadastro({ irParaLogin }) {
 
         {erro && <p className="cadastro-erro">{erro}</p>}
 
-        <button type="submit">Criar Conta</button>
+        <button type="submit" disabled={enviando}>
+          {enviando ? "Criando..." : "Criar Conta"}
+        </button>
 
         <p className="cadastro-rodape">
           Já possui conta?{" "}

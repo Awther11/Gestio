@@ -1,3 +1,4 @@
+import { api } from "./api";
 import { useEffect, useState } from "react";
 import {
   Menu,
@@ -12,7 +13,6 @@ import {
 import logo from "./img/Logo_Gestio.png";
 import "./css/Barra.css";
 
-const API = "http://localhost:8000";
 
 function iniciais(nome) {
   if (!nome) return "";
